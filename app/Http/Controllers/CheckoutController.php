@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Payments\GatewaySandbox;
 use App\Payments\OrderStatus;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -46,6 +47,36 @@ class CheckoutController extends Controller
         return view('order', [
             'order' => $order,
             'events' => $order->events()->get(),
+            'scenarios' => SimulationController::SCENARIOS,
         ]);
+    }
+
+    /**
+     * The order's current state as JSON.
+     *
+     * The page polls this so a callback arriving in the queue worker shows up
+     * without the visitor having to refresh — which is the whole point of a
+     * demonstration.
+     */
+    public function status(string $reference): JsonResponse
+    {
+        $order = Order::where('reference', $reference)->firstOrFail();
+
+        return response()->json([
+            'status' => $order->status->value,
+            'badge' => $order->status->badgeClass(),
+            'gateway_reference' => $order->gateway_reference,
+            'paid_at' => $order->paid_at?->toDayDateTimeString(),
+            'events' => $order->events()->get()->map(fn ($event) => [
+                'outcome' => $event->outcome->value,
+                'event_id' => $event->event_id,
+                'status' => $event->status,
+                'amount' => $event->amount_cents !== null
+                    ? number_format($event->amount_cents / 100, 2).' '.$event->currency
+                    : null,
+                'signature_valid' => $event->signature_valid,
+                'when' => $event->created_at->diffForHumans(),
+            ])->all(),
+        ])->header('Cache-Control', 'no-store');
     }
 }

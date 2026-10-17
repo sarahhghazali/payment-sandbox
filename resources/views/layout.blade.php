@@ -23,6 +23,21 @@
     font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
   }
   .wrap { max-width: 860px; margin: 0 auto; }
+
+  /* Site navigation */
+  .nav {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px 10px; margin-bottom: 22px;
+  }
+  .nav .brand { font-weight: 700; margin-right: 10px; padding: 6px 4px; text-decoration: none; color: var(--text); }
+  .nav a.item {
+    padding: 6px 12px; border-radius: 7px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 14px;
+  }
+  .nav a.item:hover { background: var(--bg); color: var(--text); }
+  .nav a.item[aria-current="page"] { background: var(--accent); color: #fff; }
+  .nav .spacer { margin-left: auto; }
+  .nav .tag { font-size: 12px; color: var(--muted); padding: 6px 4px; }
   a { color: var(--accent); }
   h1 { font-size: 21px; margin: 0 0 4px; }
   h2 { font-size: 15px; margin: 28px 0 10px; }
@@ -50,10 +65,47 @@
   .muted { color: var(--muted); }
   .err { color: var(--bad); font-size: 13px; margin-top: 6px; }
   ul.notes { color: var(--muted); font-size: 13px; padding-left: 18px; }
+
+  /* Step-by-step guide */
+  .guide { border-left: 3px solid var(--accent); }
+  .guide summary { cursor: pointer; font-weight: 600; }
+  .guide ol { margin: 14px 0 0; padding-left: 20px; }
+  .guide li { margin-bottom: 10px; }
+  .guide li b { color: var(--text); }
+  .step {
+    display: inline-block; background: var(--accent); color: #fff; font-size: 12px;
+    font-weight: 700; border-radius: 999px; padding: 2px 10px; margin-bottom: 8px;
+  }
+  .hint { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--accent);
+          border-radius: 8px; padding: 14px 16px; margin-bottom: 18px; font-size: 14px; }
+  .hint p { margin: 0 0 6px; }
+  .hint p:last-child { margin-bottom: 0; }
+  .result { border-left-color: var(--ok); }
+  .result.blocked { border-left-color: var(--bad); }
 </style>
 </head>
 <body>
 <div class="wrap">
+  <nav class="nav">
+    <a class="brand" href="{{ route('checkout') }}">Payment Sandbox</a>
+
+    <a class="item" href="{{ route('checkout') }}"
+       @if (request()->routeIs('checkout')) aria-current="page" @endif>Orders</a>
+
+    <a class="item" href="{{ route('activity') }}"
+       @if (request()->routeIs('activity')) aria-current="page" @endif>Live activity</a>
+
+    @isset($order)
+      <a class="item" href="{{ route('orders.show', $order->reference) }}"
+         @if (request()->routeIs('orders.show')) aria-current="page" @endif>Current order</a>
+    @endisset
+
+    {{-- The gateway is a different system; say so rather than linking to it. --}}
+    @if (request()->routeIs('gateway.*'))
+      <span class="tag spacer">You are on the gateway's site</span>
+    @endif
+  </nav>
+
   @yield('content')
 </div>
 </body>

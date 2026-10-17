@@ -5,8 +5,39 @@
   <h1>Payment Sandbox</h1>
   <p class="sub">A merchant app and a fake payment gateway, so callback handling can be tested on purpose instead of in production.</p>
 
+  <details class="card guide" open>
+    <summary>New here? Start with this (about 2 minutes)</summary>
+    <ol>
+      <li>
+        <b>Make a payment.</b> Create an order below, then choose
+        <b>Pay successfully</b> on the gateway page. You land back on the order,
+        which turns <b>PAID</b> once the callback arrives.
+      </li>
+      <li>
+        <b>Watch duplicates get absorbed.</b> Create another order, but this time
+        tick <b>“Send the callback three times”</b>. The gateway sends three
+        identical callbacks — the order still records only <b>one</b> payment.
+        That is idempotency, and it is why a customer is not charged twice.
+      </li>
+      <li>
+        <b>Attack an order.</b> Open any order and use the
+        <b>Try an attack</b> buttons: a forged callback, a tampered amount, a
+        replay. Each one is rejected, with the reason recorded.
+      </li>
+      <li>
+        <b>Read the audit trail.</b> Every callback is listed on the order page,
+        accepted or not — that is what answers “why was my order not marked
+        paid?”.
+      </li>
+    </ol>
+    <p class="muted" style="margin:14px 0 0; font-size:13px">
+      Callbacks are delivered by a queued job, so <code>php artisan queue:work</code>
+      must be running. If an order stays PENDING, that is usually why.
+    </p>
+  </details>
+
   <div class="card">
-    <h2 style="margin-top:0">New order</h2>
+    <h2 style="margin-top:0">New order <span class="step" style="vertical-align:middle">Step 1 of 3</span></h2>
     <form method="POST" action="{{ route('orders.store') }}">
       @csrf
       <div class="row">

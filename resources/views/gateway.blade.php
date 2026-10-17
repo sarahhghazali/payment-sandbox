@@ -5,6 +5,14 @@
   <h1>Sandbox Gateway</h1>
   <p class="sub">This stands in for the payment provider's hosted page. Choose what should happen to the merchant.</p>
 
+  <div class="hint">
+    <span class="step">Step 2 of 3</span>
+    <p>You have left the merchant's site, exactly as a customer does during a real payment.</p>
+    <p class="muted">Whatever you pick, the gateway signs a callback and sends it to the merchant
+      <em>server to server</em>. The browser redirect below is only for your eyes — a merchant must
+      never mark an order paid because a browser came back.</p>
+  </div>
+
   <div class="card">
     <table>
       <tr><th>Order</th><td class="mono">{{ $payment->order_reference }}</td></tr>
